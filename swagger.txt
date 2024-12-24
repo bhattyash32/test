@@ -1,0 +1,111 @@
+openapi: 3.0.0
+info:
+  title: Informatica IICS REST V2 Source for Elasticsearch
+  description: REST API connection for Elasticsearch with basic authentication using Informatica IICS REST v2 connector.
+  version: 1.0.0
+servers:
+  - url: https://{base_url}/{endpoint}
+    description: Base URL for Elasticsearch
+    variables:
+      base_url:
+        default: "eval-elk-dev.pif.gov.sa:9200" # Update with the actual Elasticsearch base URL
+      endpoint:
+        default: "_search" # Default Elasticsearch endpoint
+paths:
+  /{index}/_search:
+    get:
+      summary: Fetch data from Elasticsearch index
+      description: Retrieve data from the specified Elasticsearch index using a REST API call.
+      parameters:
+        - name: index
+          in: path
+          required: true
+          description: Name of the Elasticsearch index
+          schema:
+            type: string
+        - name: q
+          in: query
+          required: false
+          description: Query string for searching in Elasticsearch
+          schema:
+            type: string
+        - name: sort
+          in: query
+          required: false
+          description: Sort results by field
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response with search results
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  took:
+                    type: integer
+                  timed_out:
+                    type: boolean
+                  hits:
+                    type: object
+                    properties:
+                      total:
+                        type: object
+                        properties:
+                          value:
+                            type: integer
+                          relation:
+                            type: string
+                      hits:
+                        type: array
+                        items:
+                          type: object
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '404':
+          description: Index not found
+security:
+  - basicAuth: []
+components:
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+  schemas:
+    SearchResult:
+      type: object
+      properties:
+        took:
+          type: integer
+        timed_out:
+          type: boolean
+        hits:
+          type: object
+          properties:
+            total:
+              type: object
+              properties:
+                value:
+                  type: integer
+                relation:
+                  type: string
+            hits:
+              type: array
+              items:
+                type: object
+                properties:
+                  _index:
+                    type: string
+                  _type:
+                    type: string
+                  _id:
+                    type: string
+                  _score:
+                    type: number
+                  _source:
+                    type: object
+                    additionalProperties:
+                      type: string
